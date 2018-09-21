@@ -21,6 +21,12 @@ class SettingsPage {
         $control;
         if($type == 'input'){
             $control = new TextInput($id, $label, $this->sections[$sectionId]);
+        }elseif($type == 'textarea'){
+            $control = new TextArea($id, $label, $this->sections[$sectionId]);
+        }elseif($type == 'wysiwyg'){
+            $control = new WYSIWYG($id, $label, $this->sections[$sectionId]);
+        }elseif($type == 'checkbox'){
+            $control = new Checkbox($id, $label, $this->sections[$sectionId]);
         }
         $this->controls[] = $control;
     }
@@ -76,7 +82,7 @@ class SettingsPage {
         if($this->subPage === null){
             add_menu_page($this->pageName, $this->pageName, 'manage_options', $this->id, array($this,'renderSettingsPage'), null, 99);
         }else{
-            add_submenu_page($this->id, $this->pageName, $this->pageName, 'manage_options', $this->subPage, array($this,'renderSettingsPage'));
+            add_submenu_page($this->id, $this->subPage, $this->subPage, 'manage_options', $this->subPage, array($this,'renderSettingsPage'));
         }
         
     }
@@ -92,8 +98,54 @@ class TextInput {
     }
     function render(){
         ?>
-            <input type='text' name='<?php echo $this->id ?>' id='<?php echo $this->id ?>' value='<?php echo get_option($this->id); ?>' />
+            <input class='regular-text' type='text' name='<?php echo $this->id ?>' id='<?php echo $this->id ?>' value='<?php echo get_option($this->id); ?>' />
         <?php
+    }
+}
+
+class Checkbox {
+    public $id;
+    public $label;
+    function __construct($id, $label, $section){
+        $this->id = $id;
+        $this->label = $label;
+        $this->section = $section;
+    }
+    function render(){
+        ?>
+            <input type='checkbox' name='<?php echo $this->id ?>' id='<?php echo $this->id ?>' value="1" <?php checked('1', get_option($this->id), true); ?> />
+        <?php
+    }
+}
+
+class TextArea {
+    public $id;
+    public $label;
+    function __construct($id, $label, $section){
+        $this->id = $id;
+        $this->label = $label;
+        $this->section = $section;
+    }
+    function render(){
+        ?>
+            <textarea type='textarea' name='<?php echo $this->id ?>' id='<?php echo $this->id ?>'><?php echo get_option($this->id); ?></textarea>
+        <?php
+    }
+}
+
+class WYSIWYG{
+    public $id;
+    public $label;
+    function __construct($id, $label, $section){
+        $this->id = $id;
+        $this->label = $label;
+        $this->section = $section;
+    }
+
+    function render(){
+        echo '<div style="width:500px">';
+        wp_editor(get_option($this->id), $this->id, array('media_buttons'=>false, 'teeny'=>true, 'editor_height'=>200));
+        echo '</div>';
     }
 }
 
